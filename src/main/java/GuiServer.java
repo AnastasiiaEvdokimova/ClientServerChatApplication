@@ -67,7 +67,9 @@ public class GuiServer extends Application{
 		this.clientChoice.setOnAction(e-> {primaryStage.setScene(sceneMap.get("client"));
 											primaryStage.setTitle("This is a client");
 											clientConnection = new Client(data->{
-							Platform.runLater(()->{listItems2.getItems().add(data.toString());
+							Platform.runLater(()->{
+								
+								listItems2.getItems().add(data.toString());
 											});
 							});
 							
