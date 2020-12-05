@@ -1,3 +1,4 @@
+package networking;
 import java.io.Serializable;
 //this object is passed from the server to clients as the "who is online" information
 public class User implements Serializable{

@@ -1,3 +1,4 @@
+package server;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -6,12 +7,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import javafx.application.Platform;
-import javafx.scene.control.ListView;
+import networking.Message;
 /*
  * Clicker: A: I really get it    B: No idea what you are talking about
  * C: kind of following
  */
+import networking.User;
 
 public class Server{
 

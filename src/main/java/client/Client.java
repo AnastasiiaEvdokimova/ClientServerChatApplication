@@ -1,3 +1,4 @@
+package client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -5,6 +6,9 @@ import java.io.Serializable;
 import java.net.Socket;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+
+import networking.Message;
+import networking.User;
 
 
 
@@ -22,7 +26,7 @@ public class Client extends Thread{
 	
 	private Consumer<Serializable> callback;
 	
-	Client(Consumer<Serializable> call){
+	public Client(Consumer<Serializable> call){
 	
 		callback = call;
 		recepientsList = new TreeSet<Integer>();
