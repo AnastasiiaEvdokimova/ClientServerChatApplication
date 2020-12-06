@@ -63,7 +63,10 @@ public class ClientController {
     	
     	String messageText = messageTextfield.getText();
     	if (messageText == "") messageTextfield.setText("Please enter your message");
-    	else clientConnection.send(messageText, recepientsList);
+    	else {
+    		clientConnection.send(messageText, recepientsList);
+    		messageTextfield.clear();
+    	}
     }
     
     public void stopThread()
@@ -82,8 +85,8 @@ public class ClientController {
     		userTextView.getItems().add(userName);
     	}
     }
-    
-    private void addUser(User newUser)
+    //adds the new user and updates the online list. Synchronized so that multiple updates won't mess with each other
+    private synchronized void addUser(User newUser)
     {	
     	//put the user on the user maps
     	userNameIDMap.put(newUser.getName(), newUser.getId());
@@ -92,8 +95,8 @@ public class ClientController {
     	//display the user
     	displayUsers();
     }
-    
-    private void deleteUser(User user)
+    //removes the new user and updates the online list. Synchronized so that multiple updates won't mess with each other
+    private synchronized void deleteUser(User user)
     {
     	//remove the user from the maps
     	userNameIDMap.remove(user.getName());
@@ -119,6 +122,8 @@ public class ClientController {
         recepientsList = new TreeSet<Integer>();
         userNameIDMap = new TreeMap<String, Integer>();
         userIDNameMap = new TreeMap<Integer, String>();
+        
+        //this code sets the handlers on all the checkboxes
         userTextView.setCellFactory(CheckBoxListCell.forListView(new Callback<String, ObservableValue<Boolean>>() {
             @Override
             public ObservableValue<Boolean> call(String userName) {
@@ -162,8 +167,9 @@ class Call implements Consumer<Serializable>{
 			{
 				Message message = (Message) data;
 				// if the message was not meant for all the users
-				if (userNameIDMap.size() > message.getRecepients().size())
+				if (userNameIDMap.size() > message.getRecepients().size() && message.getRecepients().size() != 1)
 				{
+					//add a marker to it
 					String recepientList = " (privately to ";
 					for (Integer rec: message.getRecepients())
 					{

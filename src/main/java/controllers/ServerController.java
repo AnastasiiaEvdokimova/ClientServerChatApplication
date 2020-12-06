@@ -46,10 +46,12 @@ public class ServerController {
     void initialize() {
         assert mainDebugView != null : "fx:id=\"mainDebugView\" was not injected: check your FXML file 'Server.fxml'.";
         serverConnection = new Server(data -> {
+        	synchronized(this) {// let's not  overspam the server with too many messages
 			Platform.runLater(()->{
 				mainDebugView.getItems().add(data.toString());
-			});
-
+			} 
+        );
+        	}
 		});
     }
 }

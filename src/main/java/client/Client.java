@@ -40,6 +40,10 @@ public class Client extends Thread{
 	
 	public void stopThread() {
 		isRunning = false;
+		try {
+			out.writeObject(new Message(null, null));
+			}
+			catch (Exception ex) {};
 	}
 	
 	public void run() {
@@ -59,7 +63,7 @@ public class Client extends Thread{
 			
 			//callback.accept(data.toString());
 			
-			//the first user received is going to be the actual user
+			//the first user received is going to be this clien't data
 			if (isFirst && data instanceof User && ((User)data).getName().contains(userName))
 			{
 				User myData = (User) data;
@@ -92,7 +96,9 @@ public class Client extends Thread{
 			 callback.accept(data);
 			}
 			catch(Exception e) {}
+			
 		}
+		
 	
     }
 	
@@ -106,7 +112,7 @@ public class Client extends Thread{
 		System.out.println(recepients);
 		Message newMessage = new Message(message, recepientsList);
 		try {
-			out.reset();
+			out.reset(); //do it or your recepientsList will never change
 			out.writeUnshared(newMessage);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

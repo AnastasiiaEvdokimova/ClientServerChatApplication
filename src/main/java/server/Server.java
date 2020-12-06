@@ -1,4 +1,5 @@
 package server;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -24,6 +25,7 @@ public class Server{
 	TheServer server;
 	private Consumer<Serializable> callback;
 	private TreeSet<String> takenUsernames;
+	Object lock = new Object(); //this will lock all the threads from running updating methods
 	
 	public Server(Consumer<Serializable> call){
 	
@@ -34,7 +36,6 @@ public class Server{
 	}
 	
 	public void stopServer() {
-		System.out.println("Server stopped");
 		for(ClientThread client : clients) {
 			client.stopThread();
 			try {
@@ -61,13 +62,13 @@ public class Server{
 			try{
 				
 		    mysocket = new ServerSocket(5555);
-		    System.out.println("Server is waiting for a client!");
+		    callback.accept("Server is waiting for a client!");
 		  
 			
 		    while(true) {
 		
 				ClientThread c = new ClientThread(mysocket.accept(), count);
-				callback.accept("client has connected to server: " + "client #" + count);
+				callback.accept("client has connected to server: client #" + count);
 				clients.add(c);
 				c.start();
 				
@@ -103,11 +104,13 @@ public class Server{
 			
 			private void sendUsers()
 			{
+				synchronized(lock)
+				{
 				//the client needs to know about all the old clients
 				for (ClientThread client: clients)
 				{
 					User oldUser = new User(client.id);
-					oldUser.setName(client.userName);
+					oldUser.setName(client.userName); //add a special chara to the end, like a marker (?)
 					try {
 					if (oldUser.getId() != id) out.writeUnshared(oldUser); //don't send the info about themselves twice
 					}
@@ -115,23 +118,30 @@ public class Server{
 						callback.accept("Connection with the client #" + id + "  lost");
 					}
 				}
+				}
 			}
 			
 			public void sendMessage(Message message) {
+				synchronized(lock)
+				{
 				message.setSender(userName);
+				//if there is only one recepient (the user themselves), it means that no recepients were specified and the message is public
+				boolean isPrivate = (message.getRecepients().size() != 1);
 				for(int i = 0; i < clients.size(); i++) {
 					ClientThread t = clients.get(i);
 					try {
 						//only send the message if the client is the recepient of it
-						if (message.getRecepients().contains(t.id))
+						if (!isPrivate || message.getRecepients().contains(t.id))
 							t.out.writeUnshared(message);
 					}
 					catch(Exception e) {}
 				}
+				}
 			}
 			//if isOnline is true, the new client has joined the server. If false, they disconnected
 			public void updateClients(User user) {
-				System.out.println("update: " + user.getOnline());
+				synchronized(lock)
+				{
 				for(int i = 0; i < clients.size(); i++) {
 					ClientThread t = clients.get(i);
 					try {
@@ -140,6 +150,7 @@ public class Server{
 							t.out.writeUnshared(user); 
 					}
 					catch(Exception e) {}
+				}
 				}
 			}
 			
@@ -156,7 +167,6 @@ public class Server{
 				catch(Exception e) {
 					callback.accept("Streams not open");
 				}
-				callback.accept("Waiting for username");
 				//the user is not connected truly until they have set a nickname
 				while (!nicknameSet && isRunning)
 				{
@@ -207,6 +217,9 @@ public class Server{
 				 while(isRunning) {
 					    try {
 					    	Message msg = (Message) in.readObject();
+					    	//dunno why it won't happen automatically, but every client is now sending a null message upon exit
+					    	//if not, the disconnected would be discovered once an update is run
+					    	if (msg.getMessage() == null) throw new EOFException();
 					    	String chatLog = "client: " + user.getName() + " sent: " + msg.getMessage() + " to: ";
 					    	for (Integer i: msg.getRecepients())
 					    	{
@@ -220,7 +233,6 @@ public class Server{
 					    catch(Exception e) {
 					    	callback.accept("OOOOPPs...Something wrong with the socket from client: " + id + "....closing down!");
 					    	user.setOnline(false);
-					    	System.out.println("run: " + user.getOnline());
 					    	updateClients(user);
 					    	takenUsernames.remove(userName);
 					    	//sendMessage("Client #"+id+" has left the server!");
