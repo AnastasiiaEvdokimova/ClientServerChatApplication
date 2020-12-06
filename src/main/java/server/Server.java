@@ -109,7 +109,7 @@ public class Server{
 					User oldUser = new User(client.id);
 					oldUser.setName(client.userName);
 					try {
-					out.writeUnshared(oldUser);
+					if (oldUser.getId() != id) out.writeUnshared(oldUser); //don't send the info about themselves twice
 					}
 					catch(Exception ex) {
 						callback.accept("Connection with the client #" + id + "  lost");
@@ -184,8 +184,8 @@ public class Server{
 					    	this.userName = userName;
 					    	user.setName(userName);
 					    	nicknameSet = true;
-					    	sendUsers(); // send all those who are already connected to the new user
 					    	updateClients(user); //tell other clients that there is a new user
+					    	sendUsers(); // send all those who are already connected to the new user
 						 }
 					    	}
 					    catch(Exception e) {
@@ -207,7 +207,13 @@ public class Server{
 				 while(isRunning) {
 					    try {
 					    	Message msg = (Message) in.readObject();
-					    	callback.accept("client: " + user.getName() + " sent: " + msg.getMessage());
+					    	String chatLog = "client: " + user.getName() + " sent: " + msg.getMessage() + " to: ";
+					    	for (Integer i: msg.getRecepients())
+					    	{
+					    		chatLog += i + " ";
+					    	}
+					    	callback.accept(chatLog);
+					    	
 					    	sendMessage(msg);
 					    	
 					    	}

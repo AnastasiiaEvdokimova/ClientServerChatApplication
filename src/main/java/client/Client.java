@@ -98,9 +98,16 @@ public class Client extends Thread{
 	
 	public void send(String message, TreeSet<Integer> recepientsList) {
 		recepientsList.add(myUserID); //always add yourself to the recepients list
+		String recepients = "Recep: ";
+		for (Integer i: recepientsList)
+		{
+			recepients += i + " ";
+		}
+		System.out.println(recepients);
 		Message newMessage = new Message(message, recepientsList);
 		try {
-			out.writeObject(newMessage);
+			out.reset();
+			out.writeUnshared(newMessage);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

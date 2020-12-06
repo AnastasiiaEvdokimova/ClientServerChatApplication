@@ -42,7 +42,7 @@ public class ClientController {
     @FXML // fx:id="messageTextfield"
     private TextField messageTextfield; // Value injected by FXMLLoader
     
-    private TreeSet<Integer> recepientList;
+    private TreeSet<Integer> recepientsList;
     
     private TreeMap<String, Integer> userNameIDMap;
     
@@ -60,7 +60,10 @@ public class ClientController {
 
     @FXML
     void sendMessage(ActionEvent event) {
-
+    	
+    	String messageText = messageTextfield.getText();
+    	if (messageText == "") messageTextfield.setText("Please enter your message");
+    	else clientConnection.send(messageText, recepientsList);
     }
     
     public void stopThread()
@@ -82,7 +85,6 @@ public class ClientController {
     
     private void addUser(User newUser)
     {	
-    	messageTextView.getItems().add("AddUser called");
     	//put the user on the user maps
     	userNameIDMap.put(newUser.getName(), newUser.getId());
     	//
@@ -91,11 +93,11 @@ public class ClientController {
     	displayUsers();
     }
     
-    private void deleteUser(String userName)
+    private void deleteUser(User user)
     {
-    	messageTextView.getItems().add("deleteUser called");
-    	//put the new user on the map
-    	userNameIDMap.remove(userName);
+    	//remove the user from the maps
+    	userNameIDMap.remove(user.getName());
+    	userIDNameMap.remove(user.getId());
     	//display the user
     	displayUsers();
     }
@@ -114,7 +116,7 @@ public class ClientController {
         assert messageTextfield != null : "fx:id=\"messageTextfield\" was not injected: check your FXML file 'Client.fxml'.";
    
         //initialize everything
-        recepientList = new TreeSet<Integer>();
+        recepientsList = new TreeSet<Integer>();
         userNameIDMap = new TreeMap<String, Integer>();
         userIDNameMap = new TreeMap<Integer, String>();
         userTextView.setCellFactory(CheckBoxListCell.forListView(new Callback<String, ObservableValue<Boolean>>() {
@@ -123,9 +125,11 @@ public class ClientController {
                 BooleanProperty observable = new SimpleBooleanProperty();
                 observable.addListener((obs, wasSelected, isNowSelected) -> {
                     if (isNowSelected) {
-                    	recepientList.add(userNameIDMap.get(userName));
+                    	//messageTextView.getItems().add(userName + " added to recepients list");
+                    	recepientsList.add(userNameIDMap.get(userName));
                     } else {
-                    	recepientList.remove(userNameIDMap.get(userName));
+                      //	messageTextView.getItems().add(userName + " removed from recepients list");
+                    	recepientsList.remove(userNameIDMap.get(userName));
                     }
                 });
                 return observable;
@@ -150,20 +154,23 @@ class Call implements Consumer<Serializable>{
 				}
 				else //the user disconnected
 				{
-					deleteUser(userData.getName());
+					deleteUser(userData);
 					messageTextView.getItems().add(userData.getName() + " disconnected from the server");
 				}
 			}
 			else if (data instanceof Message)
 			{
 				Message message = (Message) data;
+				// if the message was not meant for all the users
 				if (userNameIDMap.size() > message.getRecepients().size())
 				{
 					String recepientList = " (privately to ";
 					for (Integer rec: message.getRecepients())
 					{
-						recepientList += userIDNameMap.get(rec);
+						recepientList += userIDNameMap.get(rec) + ", ";
 					}
+					//get rid of the last ", "
+					recepientList = recepientList.substring(0, recepientList.length()-2);
 					recepientList += ")";
 					messageTextView.getItems().add(message.getSender() + " sent: " + message.getMessage() + recepientList);
 				}
@@ -172,6 +179,7 @@ class Call implements Consumer<Serializable>{
 					messageTextView.getItems().add(message.getSender() + " sent: " + message.getMessage());
 				}
 			}
+				//this is mostly here for debug/special notices from the server
 			else if (data instanceof String)
 			{
 				messageTextView.getItems().add(data.toString());
