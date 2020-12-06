@@ -38,6 +38,9 @@ public class SceneChange{
 			ServerController controller = mainPane.getController();
 			controller.setSceneChangeController(this);
 			primaryStage.setTitle("Not Yahoo! Messanger");
+			primaryStage.setOnCloseRequest(e->{
+				controller.stopThread();
+			});
 			primaryStage.show();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -53,8 +56,12 @@ public class SceneChange{
 			primaryStage.setScene(new Scene(mainPane.load()));
 			primaryStage.getScene().getStylesheets().add("bootstrap3.css");
 			ClientController controller = mainPane.getController();
+			controller.setUserName(name);
 			controller.setSceneChangeController(this);
 			primaryStage.setTitle("Not Yahoo! Messanger");
+			primaryStage.setOnCloseRequest(e->{
+				controller.stopThread();
+			});
 			primaryStage.show();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

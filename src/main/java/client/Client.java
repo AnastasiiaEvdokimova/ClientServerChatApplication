@@ -20,17 +20,26 @@ public class Client extends Thread{
 	ObjectOutputStream out;
 	ObjectInputStream in;
 	
-	TreeSet<Integer> recepientsList;
-	
 	boolean setUserName;
 	
+	String userName;
+	
+	int myUserID;
+	
+	boolean isRunning = true;
+	
 	private Consumer<Serializable> callback;
-	
-	public Client(Consumer<Serializable> call){
-	
+	public Client(Consumer<Serializable> call, String userName){
+		System.out.println(userName);
 		callback = call;
-		recepientsList = new TreeSet<Integer>();
-		 setUserName = false;
+		this.userName = userName;
+		setUserName = false;
+		//callback.accept(this.userName);
+		myUserID = 0; //some default value just in case
+	}
+	
+	public void stopThread() {
+		isRunning = false;
 	}
 	
 	public void run() {
@@ -40,15 +49,25 @@ public class Client extends Thread{
 	    out = new ObjectOutputStream(socketClient.getOutputStream());
 	    in = new ObjectInputStream(socketClient.getInputStream());
 	    socketClient.setTcpNoDelay(true);
-	    out.writeObject("MyNewName");
+	    out.writeObject(userName);
 		}
 		catch(Exception e) {}
-		
-		User userData;
-		while(true) {
-			userData = null;
+		boolean isFirst = true;
+		while(isRunning) {
 			try {
-			Object data = in.readObject();
+			Serializable data = (Serializable) in.readObject();
+			
+			//callback.accept(data.toString());
+			
+			//the first user received is going to be the actual user
+			if (isFirst && data instanceof User && ((User)data).getName().contains(userName))
+			{
+				User myData = (User) data;
+				userName = myData.getName();
+				myUserID = myData.getId();
+				isFirst = false;
+			}
+			/*
 			if (data instanceof User)
 			{
 				userData = (User) data;
@@ -67,18 +86,20 @@ public class Client extends Thread{
 
 				callback.accept(message.getSender() + " sent:" + message.getMessage());
 			}
+			
+			*/
+			
+			 callback.accept(data);
 			}
 			catch(Exception e) {}
 		}
 	
     }
 	
-	public void send(String data) {
-		recepientsList.add(1);
-		Message newMessage = new Message(data, recepientsList);
-		
+	public void send(String message, TreeSet<Integer> recepientsList) {
+		recepientsList.add(myUserID); //always add yourself to the recepients list
+		Message newMessage = new Message(message, recepientsList);
 		try {
-			
 			out.writeObject(newMessage);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -1,10 +1,12 @@
 package server;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import networking.Message;
@@ -13,6 +15,7 @@ import networking.Message;
  * C: kind of following
  */
 import networking.User;
+import server.Server.ClientThread;
 
 public class Server{
 
@@ -20,21 +23,44 @@ public class Server{
 	ArrayList<ClientThread> clients = new ArrayList<ClientThread>();
 	TheServer server;
 	private Consumer<Serializable> callback;
+	private TreeSet<String> takenUsernames;
 	
-	
-	Server(Consumer<Serializable> call){
+	public Server(Consumer<Serializable> call){
 	
 		callback = call;
 		server = new TheServer();
 		server.start();
+		takenUsernames = new TreeSet<String>();
+	}
+	
+	public void stopServer() {
+		System.out.println("Server stopped");
+		for(ClientThread client : clients) {
+			client.stopThread();
+			try {
+				client.connection.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
+			server.mysocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		callback.accept("Server stopped!");
 	}
 	
 	
 	public class TheServer extends Thread{
-		
+		public ServerSocket mysocket;
 		public void run() {
 		
-			try(ServerSocket mysocket = new ServerSocket(5555);){
+			try{
+				
+		    mysocket = new ServerSocket(5555);
 		    System.out.println("Server is waiting for a client!");
 		  
 			
@@ -64,10 +90,31 @@ public class Server{
 			String userName;
 			ObjectInputStream in;
 			ObjectOutputStream out;
+			boolean isRunning = true;
+			
+			void stopThread() {
+				isRunning = false;
+			}
 			
 			ClientThread(Socket s, int id){
 				this.connection = s;
 				this.id = id;	
+			}
+			
+			private void sendUsers()
+			{
+				//the client needs to know about all the old clients
+				for (ClientThread client: clients)
+				{
+					User oldUser = new User(client.id);
+					oldUser.setName(client.userName);
+					try {
+					out.writeUnshared(oldUser);
+					}
+					catch(Exception ex) {
+						callback.accept("Connection with the client #" + id + "  lost");
+					}
+				}
 			}
 			
 			public void sendMessage(Message message) {
@@ -107,27 +154,44 @@ public class Server{
 					connection.setTcpNoDelay(true);	
 				}
 				catch(Exception e) {
-					System.out.println("Streams not open");
+					callback.accept("Streams not open");
 				}
-				
+				callback.accept("Waiting for username");
 				//the user is not connected truly until they have set a nickname
-				while (!nicknameSet)
+				while (!nicknameSet && isRunning)
 				{
 					 try {
 						 Object data = in.readObject();
+						 callback.accept(data.toString());
 						 if (data instanceof String) {
-							 
-					    	String userName = (String) data;
+					    	String userName = data.toString();
+					    	//check that the nickname is free
+					    	if (takenUsernames.contains(userName))
+					    	{
+					    		int i = 0;
+					    		String alternativeUsername;
+					    		// if not, create another username by adding a number to it
+					    		do {
+					    			i++;
+					    			alternativeUsername = userName + i;
+					    			//..and seeing whether this one was taken too
+					    		} while (takenUsernames.contains(alternativeUsername));
+					  
+					    		userName = alternativeUsername;
+					    	}
 					    	callback.accept("client: " + id + " set user name to " + userName);
+					    	takenUsernames.add(userName);
 					    	this.userName = userName;
 					    	user.setName(userName);
 					    	nicknameSet = true;
+					    	sendUsers(); // send all those who are already connected to the new user
 					    	updateClients(user); //tell other clients that there is a new user
 						 }
-					    	
 					    	}
 					    catch(Exception e) {
+					    	System.out.println(e.getMessage());
 					    	callback.accept("Something wrong with the socket from client: " + id + "....closing down!");
+					    	takenUsernames.remove(userName);
 					    	//sendMessage("Client #"+id+" has left the server!");
 					    	clients.remove(this);
 					    	return;
@@ -140,7 +204,7 @@ public class Server{
 				
 				//switch to the message accepting mode
 					
-				 while(true) {
+				 while(isRunning) {
 					    try {
 					    	Message msg = (Message) in.readObject();
 					    	callback.accept("client: " + user.getName() + " sent: " + msg.getMessage());
@@ -152,6 +216,7 @@ public class Server{
 					    	user.setOnline(false);
 					    	System.out.println("run: " + user.getOnline());
 					    	updateClients(user);
+					    	takenUsernames.remove(userName);
 					    	//sendMessage("Client #"+id+" has left the server!");
 					    	clients.remove(this);
 					    	break;

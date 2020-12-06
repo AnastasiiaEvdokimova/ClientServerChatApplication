@@ -21,12 +21,14 @@ public class IntroController {
 
     @FXML
     void joinServer(ActionEvent event) {
-    	sceneChangeController.LoadServer();
+    	if (usernameTextfield.getText() == "") usernameTextfield.setText("Enter your username");
+    	else
+    	sceneChangeController.LoadClient(usernameTextfield.getText());
     }
 
     @FXML
     void startServer(ActionEvent event) {
-    	sceneChangeController.LoadClient(usernameTextfield.getText());
+    	sceneChangeController.LoadServer();
     }
     
     void setSceneChangeController(SceneChange sceneChangeController) {
@@ -38,4 +40,5 @@ public class IntroController {
         assert usernameTextfield != null : "fx:id=\"usernameTextfield\" was not injected: check your FXML file 'Intro.fxml'.";
 
     }
+    
 }

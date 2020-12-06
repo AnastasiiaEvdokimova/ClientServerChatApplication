@@ -3,6 +3,7 @@ package server;
 import java.util.HashMap;
 
 import client.Client;
+import controllers.SceneChange;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -44,6 +45,9 @@ public class GuiServer extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
+		SceneChange sceneController = new SceneChange(primaryStage);
+		sceneController.LoadIntro();
+		/*
 		primaryStage.setTitle("The Networked Client/Server GUI Example");
 		
 		this.serverChoice = new Button("Server");
@@ -109,7 +113,7 @@ public class GuiServer extends Application{
 		
 		primaryStage.setScene(startScene);
 		primaryStage.show();
-		
+	*/	
 	}
 	
 	public Scene createServerGui() {
