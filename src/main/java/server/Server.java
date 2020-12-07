@@ -95,6 +95,13 @@ public class Server{
 			
 			void stopThread() {
 				isRunning = false;
+				for (ClientThread client: clients)
+				{	
+				try {
+					out.writeUnshared("The server disconnected, please close the client");
+				} catch (Exception ex) {}
+				
+				}
 			}
 			
 			ClientThread(Socket s, int id){
@@ -172,7 +179,7 @@ public class Server{
 				{
 					 try {
 						 Object data = in.readObject();
-						 callback.accept(data.toString());
+						 //callback.accept(data.toString());
 						 if (data instanceof String) {
 					    	String userName = data.toString();
 					    	//check that the nickname is free

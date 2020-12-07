@@ -71,28 +71,6 @@ public class Client extends Thread{
 				myUserID = myData.getId();
 				isFirst = false;
 			}
-			/*
-			if (data instanceof User)
-			{
-				userData = (User) data;
-				if (userData.getOnline()) // the user has connected
-				{
-					callback.accept("New user has joined: " + userData.getName());
-				}
-				else //the user disconnected
-				{
-					callback.accept("A user has left: " + userData.getName());
-				}
-			}
-			else if (data instanceof Message)
-			{
-				Message message = (Message) data;
-
-				callback.accept(message.getSender() + " sent:" + message.getMessage());
-			}
-			
-			*/
-			
 			 callback.accept(data);
 			}
 			catch(Exception e) {}
@@ -104,12 +82,7 @@ public class Client extends Thread{
 	
 	public void send(String message, TreeSet<Integer> recepientsList) {
 		recepientsList.add(myUserID); //always add yourself to the recepients list
-		String recepients = "Recep: ";
-		for (Integer i: recepientsList)
-		{
-			recepients += i + " ";
-		}
-		System.out.println(recepients);
+		
 		Message newMessage = new Message(message, recepientsList);
 		try {
 			out.reset(); //do it or your recepientsList will never change

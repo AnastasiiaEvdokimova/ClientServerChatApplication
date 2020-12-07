@@ -102,6 +102,7 @@ public class ClientController {
     	//remove the user from the maps
     	userNameIDMap.remove(user.getName());
     	userIDNameMap.remove(user.getId());
+    	recepientsList.remove(user.getId());
     	//display the user
     	displayUsers();
     }
@@ -123,6 +124,7 @@ public class ClientController {
         recepientsList = new TreeSet<Integer>();
         userNameIDMap = new TreeMap<String, Integer>();
         userIDNameMap = new TreeMap<Integer, String>();
+        //userTextView.setDisable(true);
         
         //this code sets the handlers on all the checkboxes
         userTextView.setCellFactory(CheckBoxListCell.forListView(new Callback<String, ObservableValue<Boolean>>() {
@@ -182,7 +184,9 @@ class Call implements Consumer<Serializable>{
 					String recepientList = " (privately to ";
 					for (Integer rec: message.getRecepients())
 					{
-						recepientList += userIDNameMap.get(rec) + ", ";
+						String recepient = userIDNameMap.get(rec);
+						if (recepient != message.getSender())
+						recepientList += recepient + ", ";
 					}
 					//get rid of the last ", "
 					recepientList = recepientList.substring(0, recepientList.length()-2);
