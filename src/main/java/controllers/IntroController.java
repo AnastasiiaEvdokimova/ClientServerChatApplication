@@ -25,6 +25,11 @@ public class IntroController {
     	else
     	sceneChangeController.LoadClient(usernameTextfield.getText());
     }
+    
+    @FXML
+    void openHelp(ActionEvent event) {
+    	sceneChangeController.openHelp();
+    }
 
     @FXML
     void startServer(ActionEvent event) {

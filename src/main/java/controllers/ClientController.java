@@ -18,6 +18,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxListCell;
@@ -34,7 +35,7 @@ public class ClientController {
     private URL location;
 
     @FXML // fx:id="messageTextView"
-    private ListView<String> messageTextView; // Value injected by FXMLLoader
+    private ListView<Label> messageTextView; // Value injected by FXMLLoader
 
     @FXML // fx:id="userTextView"
     private ListView<String> userTextView; // Value injected by FXMLLoader
@@ -155,12 +156,20 @@ class Call implements Consumer<Serializable>{
 				if (userData.getOnline()) // the user has connected
 				{
 					addUser(userData);
-					messageTextView.getItems().add(userData.getName() + " connected to the server");
+					Label messageLabel = new Label(userData.getName() + " connected to the server");
+					messageLabel.setWrapText(true);
+					messageLabel.setMaxWidth(415);
+					messageLabel.setMaxHeight(200);
+					messageTextView.getItems().add(messageLabel);
 				}
 				else //the user disconnected
 				{
 					deleteUser(userData);
-					messageTextView.getItems().add(userData.getName() + " disconnected from the server");
+					Label messageLabel = new Label(userData.getName() + " disconnected from the server");
+					messageLabel.setWrapText(true);
+					messageLabel.setMaxWidth(415);
+					messageLabel.setMaxHeight(200);
+					messageTextView.getItems().add(messageLabel);
 				}
 			}
 			else if (data instanceof Message)
@@ -178,17 +187,29 @@ class Call implements Consumer<Serializable>{
 					//get rid of the last ", "
 					recepientList = recepientList.substring(0, recepientList.length()-2);
 					recepientList += ")";
-					messageTextView.getItems().add(message.getSender() + " sent: " + message.getMessage() + recepientList);
+					Label messageLabel = new Label(message.getSender() + " sent: " + message.getMessage() + recepientList);
+					messageLabel.setWrapText(true);
+					messageLabel.setMaxWidth(415);
+					messageLabel.setMaxHeight(200);
+					messageTextView.getItems().add(messageLabel);
 				}
 				else
 				{
-					messageTextView.getItems().add(message.getSender() + " sent: " + message.getMessage());
+					Label messageLabel = new Label(message.getSender() + " sent: " + message.getMessage());
+					messageLabel.setWrapText(true);
+					messageLabel.setMaxWidth(415);
+					messageLabel.setMaxHeight(200);
+					messageTextView.getItems().add(messageLabel);
 				}
 			}
 				//this is mostly here for debug/special notices from the server
 			else if (data instanceof String)
 			{
-				messageTextView.getItems().add(data.toString());
+				Label messageLabel = new Label(data.toString());
+				messageLabel.setWrapText(true);
+				messageLabel.setMaxWidth(415);
+				messageLabel.setMaxHeight(200);
+				messageTextView.getItems().add(messageLabel);
 			}
 			}
 		);

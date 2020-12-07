@@ -69,4 +69,19 @@ public class SceneChange{
 		}
 	}
 	
+	public void openHelp() {
+		Stage tempStage = new Stage();
+		
+		try {
+			FXMLLoader mainPane = new FXMLLoader(getClass().getResource("Help.fxml"));
+			tempStage.setScene(new Scene(mainPane.load()));
+			tempStage.getScene().getStylesheets().add("bootstrap3.css");
+			tempStage.setTitle("Help!");
+			tempStage.show();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

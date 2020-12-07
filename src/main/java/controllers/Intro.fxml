@@ -7,8 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="211.0" prefWidth="318.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.IntroController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="318.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.IntroController">
    <children>
       <Label alignment="CENTER" prefHeight="16.0" prefWidth="602.0" text="Server" textAlignment="CENTER">
          <font>
@@ -34,6 +33,11 @@
          </VBox.margin>
       </TextField>
       <Button mnemonicParsing="false" onAction="#joinServer" prefWidth="599.0" styleClass="success" text="Join Server">
+         <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </VBox.margin>
+      </Button>
+      <Button mnemonicParsing="false" onAction="#openHelp" prefWidth="599.0" styleClass="info" text="Help">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
