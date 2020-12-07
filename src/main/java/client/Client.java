@@ -30,7 +30,6 @@ public class Client extends Thread{
 	
 	private Consumer<Serializable> callback;
 	public Client(Consumer<Serializable> call, String userName){
-		System.out.println(userName);
 		callback = call;
 		this.userName = userName;
 		setUserName = false;
@@ -73,7 +72,11 @@ public class Client extends Thread{
 			}
 			 callback.accept(data);
 			}
-			catch(Exception e) {}
+			catch(Exception e) {
+				
+				callback.accept("Couldn't connect to the server, please restart the program");
+				isRunning = false;
+			}
 			
 		}
 		
@@ -89,7 +92,7 @@ public class Client extends Thread{
 			out.writeUnshared(newMessage);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			 callback.accept("The connection was interrupted, so the message cannot be delivered. Please close the client");
 		}
 	}
 

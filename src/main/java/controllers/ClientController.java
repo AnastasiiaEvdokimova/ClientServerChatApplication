@@ -52,6 +52,7 @@ public class ClientController {
 	private Client clientConnection;
 	
 	
+	
 	public void setUserName(String userName)
 	{
 //only start the client after the username is passed
@@ -106,7 +107,6 @@ public class ClientController {
     	//display the user
     	displayUsers();
     }
-    
     
     SceneChange sceneChangeController;
     
