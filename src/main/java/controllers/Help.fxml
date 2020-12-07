@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.VBox?>
 
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="219.0" prefWidth="371.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="219.0" prefWidth="371.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <TextArea editable="false" prefHeight="403.0" prefWidth="600.0" text="There must be one local server running in ordeer for the client to connect. &#10;&#10;Once a client is connected, sending a message will send it to all users on the server. &#10;&#10;To send to a single person or a group of users, select the checkboxes in the list of connected users. Type your message and click the send button!" wrapText="true">
+      <TextArea editable="false" prefHeight="403.0" prefWidth="600.0" text="There must be one local server running in order for the client to connect. &#10;&#10;Once a client is connected, sending a message will send it to all users on the server.&#10;&#10;To send to a single person or a group of users, select the checkboxes in the list of connected users. Type your message and click the send button! If everyone is selected, the message will be public. Selecting yourself doesn't have any impact." wrapText="true">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
